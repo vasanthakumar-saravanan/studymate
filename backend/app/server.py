@@ -4,6 +4,8 @@ from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 import shutil, os, json, re, uuid
+from pydantic import BaseModel
+from app.config import supabase
 
 from app.ai_engine import (
     generate_response,
@@ -14,17 +16,16 @@ from app.ai_engine import (
     generate_debate_stance,
     evaluate_debate_rebuttal,
     generate_scenario,
-    evaluate_scenario_action
+    evaluate_scenario_action,
+    generate_study_schedule
 )
 from app.pdf_processor import extract_text_from_pdf
 from app.config import supabase
+from datetime import datetime, timedelta
 
 app = FastAPI(title="StudyMate API", version="2.1")
 
-app.mount("/static", StaticFiles(directory=".", html=True), name="static")
-
-app.mount("/static", StaticFiles(directory=".", html=True), name="static")
-
+app.mount("/static", StaticFiles(directory="../frontend", html=True), name="static")
 # ✅ CORS (IMPORTANT FOR MOBILE + RENDER)
 app.add_middleware(
     CORSMiddleware,
@@ -84,7 +85,7 @@ def extract_json_array(raw: str) -> list:
 
 @app.get("/", response_class=HTMLResponse)
 async def home():
-    index_path = "index.html"
+    index_path = "../frontend/index.html"
     if os.path.exists(index_path):
         with open(index_path, "r", encoding="utf-8") as f:
             return f.read()
@@ -118,16 +119,25 @@ class AuthRequest(BaseModel):
 
 @app.post("/register")
 async def register(data: AuthRequest):
-    if not supabase:
-        raise HTTPException(status_code=500, detail="Supabase not configured on server")
     try:
+        print("REGISTER REQUEST:", data)
+
         res = supabase.auth.sign_up({
             "email": data.email,
             "password": data.password,
             "options": {"data": {"full_name": data.name}}
         })
-        return {"message": "Registration successful", "user": res.user.id if res.user else None}
+
+        print("REGISTER RESPONSE:", res)
+
+        return {"message": "Registration successful"}
+
     except Exception as e:
+        print("REGISTER ERROR:", repr(e))
+        print("ERROR TYPE:", type(e))
+        import traceback
+        traceback.print_exc()
+
         raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/login")
@@ -143,9 +153,54 @@ async def login(data: AuthRequest):
         return {"message": "Login successful", "session": res.session.access_token if res.session else None, "name": user_name}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+@app.get("/test-reset")
+async def test_reset():
+    try:
+        res = supabase.auth.reset_password_for_email(
+            "vasanthakumar.saravanan.01@gmail.com"
+        )
+        return {"success": True}
+    except Exception as e:
+        return {"error": str(e)}
 
+@app.get("/check-client")
+async def check_client():
+    return {
+        "type": str(type(supabase))
+    }
+@app.get("/check-config")
+async def check_config():
+    return {
+        "url": SUPABASE_URL,
+        "key_start": SUPABASE_KEY[:20]
+    }
+class ForgotPasswordRequest(BaseModel):
+    email: str
+@app.get("/check-methods")
+async def check_methods():
+    return {
+        "methods": dir(supabase.auth)
+    }
+@app.post("/forgot-password")
+async def forgot_password(data: ForgotPasswordRequest):
 
+    print("EMAIL RECEIVED:", repr(data.email))
 
+    try:
+        res = supabase.auth.reset_password_for_email(
+            data.email.strip()
+        )
+
+        return {
+            "success": True
+        }
+
+    except Exception as e:
+        print("ERROR:", repr(e))
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
 # 🔥 FIXED UPLOAD (IMPORTANT)
 @app.post("/upload-pdf/")
 async def upload_pdf(file: UploadFile = File(...)):
@@ -407,3 +462,240 @@ async def scenario_action(data: ScenarioActionRequest):
     except Exception as e:
         print("SCENARIO ACTION ERROR:", str(e))
         raise HTTPException(status_code=500, detail="Scenario action failed.")
+
+
+# ───────── EXAM PLANNER ─────────
+class PlannerRequest(BaseModel):
+    exam_name: str
+    subject: str
+    exam_date: str  # Format: YYYY-MM-DD
+    pdf_topics: list[str] = []
+
+
+@app.post("/planner/create/")
+async def create_planner(data: PlannerRequest):
+    """Create an exam planner with auto-generated study schedule."""
+    try:
+        if not data.exam_name or not data.subject or not data.exam_date:
+            raise HTTPException(status_code=400, detail="exam_name, subject, and exam_date are required.")
+        
+        # Parse exam date
+        try:
+            exam_date_obj = datetime.strptime(data.exam_date, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="exam_date must be in YYYY-MM-DD format.")
+        
+        # Generate study schedule using LLM
+        topics_str = ", ".join(data.pdf_topics) if data.pdf_topics else data.subject
+        schedule = generate_study_schedule(
+            subject=data.subject,
+            topics=topics_str,
+            exam_date=data.exam_date
+        )
+        
+        planner_id = str(uuid.uuid4())
+        created_at = datetime.utcnow().isoformat()
+        
+        # Save to Supabase if configured
+        if supabase:
+            try:
+                supabase.table("exam_planners").insert({
+                    "id": planner_id,
+                    "exam_name": data.exam_name,
+                    "subject": data.subject,
+                    "exam_date": data.exam_date,
+                    "schedule": schedule,
+                    "created_at": created_at
+                }).execute()
+            except Exception as db_err:
+                print("DB Warning (exam_planners):", db_err)
+        
+        return {
+            "planner_id": planner_id,
+            "exam_name": data.exam_name,
+            "subject": data.subject,
+            "exam_date": data.exam_date,
+            "schedule": schedule
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        print("PLANNER CREATE ERROR:", str(e))
+        raise HTTPException(status_code=500, detail="Planner creation failed.")
+
+
+class PlannerGetRequest(BaseModel):
+    planner_id: str
+
+
+@app.post("/planner/get/")
+async def get_planner(data: PlannerGetRequest):
+    """Retrieve planner by ID."""
+    try:
+        if supabase:
+            result = supabase.table("exam_planners").select("*").eq("id", data.planner_id).execute()
+            if result.data:
+                return result.data[0]
+            raise HTTPException(status_code=404, detail="Planner not found.")
+        raise HTTPException(status_code=500, detail="Database not configured.")
+    except HTTPException:
+        raise
+    except Exception as e:
+        print("PLANNER GET ERROR:", str(e))
+        raise HTTPException(status_code=500, detail="Failed to retrieve planner.")
+
+
+class SessionUpdateRequest(BaseModel):
+    planner_id: str
+    session_date: str  # YYYY-MM-DD
+    topic: str
+    completed: bool
+
+
+@app.post("/planner/session-update/")
+async def update_session(data: SessionUpdateRequest):
+    """Mark a study session as completed."""
+    try:
+        if supabase:
+            result = supabase.table("study_sessions").select("*").eq("planner_id", data.planner_id).eq("session_date", data.session_date).eq("topic", data.topic).execute()
+            
+            if result.data:
+                # Update existing session
+                supabase.table("study_sessions").update({
+                    "completed": data.completed,
+                    "completed_at": datetime.utcnow().isoformat() if data.completed else None
+                }).eq("planner_id", data.planner_id).eq("session_date", data.session_date).eq("topic", data.topic).execute()
+            else:
+                # Create new session record
+                supabase.table("study_sessions").insert({
+                    "id": str(uuid.uuid4()),
+                    "planner_id": data.planner_id,
+                    "session_date": data.session_date,
+                    "topic": data.topic,
+                    "completed": data.completed,
+                    "completed_at": datetime.utcnow().isoformat() if data.completed else None
+                }).execute()
+        
+        return {"message": "Session updated successfully", "completed": data.completed}
+    
+    except Exception as e:
+        print("SESSION UPDATE ERROR:", str(e))
+        raise HTTPException(status_code=500, detail="Failed to update session.")
+
+
+# ───────── EMAIL NOTIFICATIONS ─────────
+class EmailNotificationRequest(BaseModel):
+    email: str
+    subject: str
+    topic: str
+    date: str
+    exam_name: str
+
+
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+
+def send_email_notification(recipient_email: str, subject: str, topic: str, date: str, exam_name: str):
+    """Send email notification when user completes a study task."""
+    try:
+        # Get Gmail credentials from environment
+        sender_email = os.getenv("GMAIL_EMAIL")
+        sender_password = os.getenv("GMAIL_PASSWORD")
+        
+        if not sender_email or not sender_password:
+            print("Gmail credentials not configured. Skipping email notification.")
+            return {"message": "Email credentials not configured", "status": "skipped"}
+        
+        # Create email content
+        email_body = f"""
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+              <div style="text-align: center; margin-bottom: 20px;">
+                <h1 style="color: #22c55e; margin: 0;">✅ Task Completed!</h1>
+              </div>
+              
+              <div style="background: white; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+                <p style="margin: 0 0 10px 0;">Great job completing your study task!</p>
+                
+                <div style="background: #f0f9ff; padding: 15px; border-left: 4px solid #38bdf8; margin: 15px 0;">
+                  <p style="margin: 5px 0;"><strong>📚 Topic:</strong> {topic}</p>
+                  <p style="margin: 5px 0;"><strong>📅 Date:</strong> {date}</p>
+                  <p style="margin: 5px 0;"><strong>🎓 Exam:</strong> {exam_name}</p>
+                </div>
+                
+                <p style="margin: 15px 0; color: #666;">
+                  Keep up the great work! Consistent study is the key to success. You're on your way to acing your exam! 🚀
+                </p>
+              </div>
+              
+              <div style="text-align: center; color: #999; font-size: 12px;">
+                <p>StudyMate AI - Your Personal Study Assistant</p>
+              </div>
+            </div>
+          </body>
+        </html>
+        """
+        
+        # Create message
+        message = MIMEMultipart("alternative")
+        message["Subject"] = subject
+        message["From"] = sender_email
+        message["To"] = recipient_email
+        
+        # Add HTML part
+        part = MIMEText(email_body, "html")
+        message.attach(part)
+        
+        # Send email
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, recipient_email, message.as_string())
+        server.quit()
+        
+        print(f"Email sent to {recipient_email}")
+        return {"message": "Email sent successfully", "status": "sent"}
+        
+    except Exception as e:
+        print(f"Error sending email: {str(e)}")
+        return {"message": f"Error sending email: {str(e)}", "status": "failed"}
+
+
+@app.post("/planner/send-notification/")
+async def send_notification(data: EmailNotificationRequest):
+    """Send email notification for completed study task."""
+    try:
+        if not data.email:
+            raise HTTPException(status_code=400, detail="Email is required")
+        
+        result = send_email_notification(
+            recipient_email=data.email,
+            subject=data.subject,
+            topic=data.topic,
+            date=data.date,
+            exam_name=data.exam_name
+        )
+        
+        return result
+        
+    except Exception as e:
+        print("NOTIFICATION ERROR:", str(e))
+        raise HTTPException(status_code=500, detail="Failed to send notification.")
+    from weasyprint import HTML
+
+@app.post("/planner/download/")
+async def download_pdf(data: PlannerRequest):
+    html_content = generate_html(data)  # your function
+
+    pdf = HTML(string=html_content).write_pdf()
+
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": "attachment; filename=planner.pdf"
+        }
+    )

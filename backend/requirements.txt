@@ -6,3 +6,5 @@ PyPDF2
 groq
 python-dotenv
 supabase
+python-smtplib
+
