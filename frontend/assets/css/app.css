@@ -70,52 +70,97 @@ body::before{
   -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
 }
 
-/* ───────── NAV ───────── */
-nav{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:18px 40px;
-  background:rgba(14,17,23,.85);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border);
-  position:sticky;top:0;z-index:100;
-}
-.logo{
-  font-family:'Outfit', sans-serif;
-  font-weight:800;font-size:1.4rem;
-  color:var(--green);
-  letter-spacing:-0.5px;
-}
-.logo span{color:var(--text)}
-.nav-tabs{display:flex;gap:4px}
-.nav-tab{
-  font-family:'Inter', sans-serif;
-  font-size:.85rem;font-weight:500;
-  padding:7px 16px;
-  border:1px solid transparent;
-  border-radius:8px;
-  cursor:pointer;
-  color:var(--muted);
-  background:none;
-  transition:all .2s;
-}
-.nav-tab:hover{color:var(--text);border-color:var(--border)}
-.nav-tab.active{
-  color:var(--green);
-  background:rgba(59,220,140,.08);
-  border-color:rgba(59,220,140,.2);
+/* ───────── APP LAYOUT (SIDEBAR) ───────── */
+.app-container {
+  display: flex;
+  min-height: 100vh;
 }
 
-/* ───────── MAIN LAYOUT ───────── */
-main{
-  max-width:860px;
-  margin:0 auto;
-  padding:40px 24px 80px;
-  position:relative;z-index:1;
-  transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1), width 0.4s;
+/* ───────── SIDEBAR ───────── */
+.sidebar {
+  width: 260px;
+  background: rgba(14, 17, 23, 0.95);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 32px 20px;
+  position: fixed;
+  height: 100vh;
+  z-index: 100;
+  transition: all 0.3s ease;
 }
+
+.sidebar .logo {
+  margin-bottom: 40px;
+  padding-left: 12px;
+  text-decoration: none;
+}
+
+.nav-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  border-radius: 12px;
+  text-align: left;
+  width: 100%;
+}
+
+.nav-tab:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.nav-tab.active {
+  background: rgba(59, 220, 140, 0.1);
+  color: var(--green);
+  border-color: rgba(59, 220, 140, 0.2);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ───────── MAIN CONTENT ───────── */
+main {
+  flex: 1;
+  margin-left: 260px;
+  padding: 40px 60px 80px;
+  max-width: 1200px;
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
 main.wide {
-  max-width: 98% !important;
-  width: 98% !important;
+  max-width: 100% !important;
+}
+
+/* Top bar for mobile or shared controls */
+.top-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(14, 17, 23, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 90;
 }
 
 /* ───────── SECTION PAGES ───────── */
@@ -670,18 +715,199 @@ main.wide {
 }
 
 /* ───────── MOBILE RESPONSIVENESS ───────── */
+@media (max-width: 992px) {
+  .sidebar {
+    transform: translateX(-100%);
+    box-shadow: 20px 0 50px rgba(0,0,0,0.5);
+  }
+  .sidebar.show {
+    transform: translateX(0);
+  }
+  main {
+    margin-left: 0;
+    padding: 24px 16px 60px;
+  }
+  .top-bar {
+    display: flex;
+  }
+}
+
 @media (max-width: 768px) {
-  nav { flex-direction: column; padding: 12px 16px; gap: 14px; position:relative; }
-  .logo { justify-content:center; }
-  .nav-tabs { width: 100%; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
-  .nav-tab { font-size: 0.82rem; padding: 6px 12px; }
-  .nav-tabs::-webkit-scrollbar { height: 4px; }
-  .nav-tabs::-webkit-scrollbar-thumb { background: var(--green); border-radius: 4px; }
-  main { padding: 24px 16px 60px; max-width: 100vw; }
   .hero h1 { font-size: 2.2rem; }
   .hero { padding: 24px 0 36px; }
   .card { padding: 16px; }
   .card-title { font-size: 1rem; }
   .btn { width: 100%; justify-content: center; }
-  .top-right-nav { position:absolute; right:16px; top:12px; }
 }
+
+/* ───────── FLASHCARDS ───────── */
+.flashcard-container {
+  perspective: 1200px;
+  width: 100%;
+  max-width: 440px;
+  height: 280px;
+  margin: 0 auto 32px;
+}
+
+.flashcard {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  border-radius: 24px;
+}
+
+.flashcard.flipped {
+  transform: rotateY(180deg);
+}
+
+.flashcard-front, .flashcard-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--surface2) 0%, rgba(20,20,25,0.9) 100%);
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(135deg, rgba(20,20,25,0.9) 0%, var(--surface2) 100%);
+}
+
+.card-label {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--green);
+  opacity: 0.8;
+}
+
+.card-content {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.card-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.deck-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  user-select: none;
+}
+
+.card-counter {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+#currentCardNum {
+  color: var(--green);
+  font-size: 1.4rem;
+}
+
+@media(max-width: 500px) {
+  .flashcard-container {
+    height: 320px;
+  }
+  .card-content {
+    font-size: 1.1rem;
+  }
+}
+
+/* ───────── MIND MAP INTERACTIVE NODE STYLES ───────── */
+#mindmapContainer .node {
+  cursor: pointer !important;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.25s ease, stroke-width 0.25s ease !important;
+}
+
+#mindmapContainer .node:hover {
+  filter: brightness(1.2) drop-shadow(0 0 10px rgba(59, 220, 140, 0.6)) !important;
+  transform: scale(1.04) !important;
+}
+
+#mindmapContainer .node rect, 
+#mindmapContainer .node circle, 
+#mindmapContainer .node polygon,
+#mindmapContainer .node path {
+  transition: fill 0.25s ease, stroke 0.25s ease, stroke-width 0.25s ease !important;
+}
+
+#mindmapContainer .node:hover rect,
+#mindmapContainer .node:hover circle,
+#mindmapContainer .node:hover polygon,
+#mindmapContainer .node:hover path {
+  stroke: var(--green) !important;
+  stroke-width: 2px !important;
+}
+
+/* ───────── CONCEPT ACTIONS MODAL OVERLAY STYLES ───────── */
+.concept-modal-card {
+  border: 1px solid rgba(59, 220, 140, 0.2) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 220, 140, 0.1) !important;
+  background: linear-gradient(135deg, rgba(20, 24, 33, 0.95) 0%, rgba(14, 17, 23, 0.98) 100%) !important;
+  animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.96); filter: blur(5px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+.concept-modal-card .btn {
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--border);
+}
+
+.concept-modal-card .btn-primary {
+  border: 1px solid rgba(59, 220, 140, 0.3);
+}
+
+.concept-modal-card .btn-secondary {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.concept-modal-card .btn:hover {
+  transform: translateX(4px) !important;
+  background: rgba(59, 220, 140, 0.08) !important;
+  border-color: var(--green) !important;
+  color: var(--green) !important;
+}
+
+.concept-modal-card .btn-primary:hover {
+  background: linear-gradient(135deg, var(--green), #059669) !important;
+  color: white !important;
+  transform: translateX(4px) translateY(-1px) !important;
+}
+

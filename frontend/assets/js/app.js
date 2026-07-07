@@ -1,12 +1,9 @@
-
 // ═════════════════════════════════════════
 //  STATE
 // ═════════════════════════════════════════
-
-// ═════════════════════════════════════════
-//  STATE
-// ═════════════════════════════════════════
-const API = "https://studymate-f2bw.onrender.com";
+const API = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+  ? "http://localhost:8000" 
+  : "https://studymate-f2bw.onrender.com";
 
 let state = {
   topics: [],
@@ -24,7 +21,9 @@ let state = {
     quizzesTaken: 0,
     scores: [],
     weakAreas: []
-  }))
+  })),
+  flashcards: [],
+  currentCardIdx: 0
 };
 
 // ═════════════════════════════════════════
@@ -35,15 +34,21 @@ function showPage(id) {
   document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
   document.getElementById(id + "Page").classList.add("active");
   const tabs = document.querySelectorAll(".nav-tab");
-  const map = { home: 0, mindmap: 1, feynman: 2, debate: 3, tutor: 4, scenario: 5, dashboard: 6 };
+  const map = { home: 0, mindmap: 1, feynman: 2, debate: 3, tutor: 4, scenario: 5, flashcards: 6, dashboard: 7 };
   if(tabs[map[id]]) tabs[map[id]].classList.add("active");
   if (id === "dashboard") renderDashboard();
+  if (id === "flashcards") renderFlashcardTopics();
   
   const mainEl = document.querySelector("main");
   if (id === "mindmap") {
     mainEl.classList.add("wide");
   } else {
     mainEl.classList.remove("wide");
+  }
+
+  // Close sidebar on mobile
+  if (window.innerWidth <= 992) {
+    document.querySelector(".sidebar").classList.remove("show");
   }
 }
 
@@ -133,9 +138,8 @@ async function uploadPDF() {
 
     renderTopics(data.detected_topics);
     renderDebateTopics();
-    if(typeof renderScenarioTopics !== "undefined") {
-      renderScenarioTopics();
-    }
+    if(typeof renderScenarioTopics !== "undefined") renderScenarioTopics();
+    if(typeof renderFlashcardTopics !== "undefined") renderFlashcardTopics();
     showToast("✅ PDF uploaded! " + data.detected_topics.length + " topics found");
   } catch (err) {
     clearInterval(fakeProgress);
@@ -600,6 +604,7 @@ async function generateMindmap() {
           console.error("Mermaid error:", e);
           container.innerHTML += `<div style="color:var(--amber);margin-top:10px;text-align:center;">Note: AI generated a slightly malformed graph, but we tried to render it.</div>`;
       });
+      setupMindmapNodeInteractions();
     } else {
       container.innerHTML = `<div style="color:var(--red);text-align:center;padding:20px;">Failed to generate map.</div>`;
     }
@@ -860,10 +865,152 @@ async function submitScenarioAction() {
   }
 }
 
+// ═════════════════════════════════════════
+//  FLASHCARD FORGE
+// ═════════════════════════════════════════
+function renderFlashcardTopics() {
+  const container = document.getElementById("flashcardTopicsList");
+  if (!container) return;
+  if (state.topics.length === 0) return;
+  
+  container.innerHTML = state.topics.map(t => 
+    `<button class="topic-chip" onclick="startFlashcards('${t}')"><span>✨</span> ${t}</button>`
+  ).join("");
+}
 
+let activeFlashcardTopic = "";
 
+async function startFlashcards(topic) {
+  activeFlashcardTopic = topic;
+  const arena = document.getElementById("flashcardArena");
+  const loader = document.getElementById("flashcardLoader");
+  const topicChips = document.getElementById("flashcardTopicsList").querySelectorAll(".topic-chip");
+  const card = document.getElementById("mainFlashcard");
+  
+  topicChips.forEach(chip => {
+    chip.style.opacity = chip.textContent.includes(topic) ? "1" : "0.5";
+    chip.style.borderColor = chip.textContent.includes(topic) ? "var(--green)" : "var(--border)";
+  });
+  
+  arena.style.display = "block";
+  loader.style.display = "flex";
+  card.style.visibility = "hidden";
+  document.querySelector(".deck-controls").style.display = "none";
+  
+  try {
+    const res = await fetch(`${API}/flashcards/`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic: topic })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Flashcard forge failed");
+    
+    state.flashcards = data.flashcards;
+    state.currentCardIdx = 0;
+    
+    loader.style.display = "none";
+    card.style.visibility = "visible";
+    document.querySelector(".deck-controls").style.display = "flex";
+    
+    renderFlashcard();
+  } catch (err) {
+    loader.style.display = "none";
+    showToast("❌ " + (err.message || "Failed to forge flashcards."));
+  }
+}
 
-const API_URL = "https://studymate-f2bw.onrender.com";
+function renderFlashcard() {
+  const cardData = state.flashcards[state.currentCardIdx];
+  const el = document.getElementById("mainFlashcard");
+  el.classList.remove("flipped");
+  
+  document.getElementById("cardFrontText").innerText = cardData.front;
+  document.getElementById("cardBackText").innerText = cardData.back;
+  
+  document.getElementById("currentCardNum").innerText = state.currentCardIdx + 1;
+  document.getElementById("totalCardsNum").innerText = state.flashcards.length;
+  
+  document.getElementById("prevCardBtn").disabled = (state.currentCardIdx === 0);
+  document.getElementById("nextCardBtn").disabled = (state.currentCardIdx === state.flashcards.length - 1);
+}
+
+function navigateFlashcards(dir) {
+  const newIdx = state.currentCardIdx + dir;
+  if (newIdx >= 0 && newIdx < state.flashcards.length) {
+    state.currentCardIdx = newIdx;
+    renderFlashcard();
+  }
+}
+
+// ═════════════════════════════════════════
+//  CONCEPT MIND MAP INTERACTIONS
+// ═════════════════════════════════════════
+let currentConcept = "";
+
+function setupMindmapNodeInteractions() {
+  const nodes = document.querySelectorAll("#mindmapContainer .node");
+  if (nodes.length === 0) {
+    console.log("No nodes found to attach listeners.");
+    return;
+  }
+
+  nodes.forEach(node => {
+    node.style.cursor = "pointer";
+    
+    node.addEventListener("click", (e) => {
+      e.stopPropagation(); // Stop drag trigger
+      
+      // Extract text content from the node
+      const labelEl = node.querySelector(".nodeLabel") || node.querySelector("span") || node.querySelector("text");
+      if (labelEl) {
+        let concept = labelEl.textContent.trim();
+        // Clean surrounding special characters
+        concept = concept.replace(/^["'({[\s]+|["')}\s]+$/g, '').trim();
+        if (concept) {
+          openConceptInteractionModal(concept);
+        }
+      }
+    });
+  });
+}
+
+function openConceptInteractionModal(concept) {
+  currentConcept = concept;
+  document.getElementById("selectedConceptName").textContent = concept;
+  document.getElementById("conceptModal").classList.add("show");
+}
+
+function closeConceptModal() {
+  document.getElementById("conceptModal").classList.remove("show");
+}
+
+async function actionOnConcept(actionType) {
+  closeConceptModal();
+  
+  if (actionType === 'explain') {
+    state.selectedTopic = currentConcept;
+    showPage("tutor");
+    explainTopic();
+  } else if (actionType === 'feynman') {
+    showPage("feynman");
+    document.getElementById("feynmanTopic").value = currentConcept;
+    document.getElementById("feynmanExplanation").value = "";
+    document.getElementById("feynmanExplanation").focus();
+  } else if (actionType === 'debate') {
+    showPage("debate");
+    startDebate(currentConcept);
+  } else if (actionType === 'flashcards') {
+    showPage("flashcards");
+    startFlashcards(currentConcept);
+  } else if (actionType === 'quiz') {
+    state.selectedTopic = currentConcept;
+    state.selectedTopicIndex = null; // Concept-specific quiz
+    startQuiz();
+  } else if (actionType === 'scenario') {
+    showPage("scenario");
+    startScenario(currentConcept);
+  }
+}
 
 // AUTH GUARD
 function checkAuth() {

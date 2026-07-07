@@ -6,6 +6,7 @@
   <title>Features | StudyMate AI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -41,7 +42,8 @@
         border-color:rgba(59,220,140,.2);
     }
     main{ max-width:860px; margin:0 auto; padding:60px 24px 80px; }
-    h1 { font-family:'Syne',sans-serif; font-size:2.4rem; margin-bottom: 24px; text-align: center; }
+    h1.seo-header { position: absolute; left: -9999px; }
+    main h1 { font-family:'Syne',sans-serif; font-size:2.4rem; margin-bottom: 24px; text-align: center; }
     .card {
       background:var(--surface); backdrop-filter: blur(12px); border:1px solid var(--border);
       border-radius:var(--radius); padding:32px; margin-bottom:20px;
@@ -59,7 +61,7 @@
 </head>
 
 <body>
-  <h1>StudyMate Features – AI Tools for Smarter Learning</h1>
+  <h1 class="seo-header">StudyMate Features – AI Tools for Smarter Learning</h1>
 <nav>
   <a href="/" class="logo">Study<span>Mate</span></a>
   <div class="nav-tabs">

@@ -23,31 +23,41 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
-<link rel="stylesheet" href="app.css">
-
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
 </head>
 <body>
   <h1>StudyMate Dashboard – AI Study Assistant</h1>
 
-<!-- NAV -->
-<nav>
+<div class="app-container">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="/app" class="logo">Study<span>Mate</span></a>
+    
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('home')">🏠 Home</button>
+      <button class="nav-tab" onclick="showPage('mindmap')">🧠 Mind Map</button>
+      <button class="nav-tab" onclick="showPage('feynman')">🎓 Feynman</button>
+      <button class="nav-tab" onclick="showPage('debate')">🤺 Debate AI</button>
+      <button class="nav-tab" onclick="showPage('tutor')">🤖 Tutor</button>
+      <button class="nav-tab" onclick="showPage('scenario')">🌍 Scenario</button>
+      <button class="nav-tab" onclick="showPage('flashcards')">🎴 Flashcards</button>
+      <button class="nav-tab" onclick="showPage('dashboard')">📊 Dashboard</button>
+    </div>
 
-  <div class="logo">Study<span>Mate</span></div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('home')">🏠 Home</button>
-    <button class="nav-tab" onclick="showPage('mindmap')">🧠 Mind Map</button>
-    <button class="nav-tab" onclick="showPage('feynman')">🎓 Feynman</button>
-    <button class="nav-tab" onclick="showPage('debate')">🤺 Debate AI</button>
-    <button class="nav-tab" onclick="showPage('tutor')">🤖 Tutor</button>
-    <button class="nav-tab" onclick="showPage('scenario')">🌍 Scenario</button>
-    <button class="nav-tab" onclick="showPage('dashboard')">📊 Dashboard</button>
-    <button class="nav-tab" onclick="window.location.href='planner.html'">📅 Planner</button>
+    <div class="sidebar-footer">
+      <div style="display:flex; gap:12px; align-items:center; justify-content:space-between; padding:0 8px;">
+        <button class="dark-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+        <button onclick="logoutUser()" id="logoutBtn" class="btn btn-outline" style="padding: 6px 14px; font-size:0.8rem; display:none;">Logout</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MOBILE TOP BAR -->
+  <div class="top-bar">
+    <a href="/app" class="logo">Study<span>Mate</span></a>
+    <button class="btn btn-outline" style="padding:8px" onclick="document.querySelector('.sidebar').classList.toggle('show')">☰</button>
   </div>
-  <div class="top-right-nav" style="display:flex; gap:12px; align-items:center;">
-    <button class="dark-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
-    <button onclick="logoutUser()" id="logoutBtn" class="btn btn-outline" style="padding: 6px 14px; font-size:0.82rem; display:none;">Logout</button>
-  </div>
-</nav>
 
 
 <!-- KNOWLEDGE CHECK MODAL -->
@@ -60,6 +70,40 @@
       <button class="btn btn-primary" onclick="startWithKnowledge(true)">✅ Yes, quiz me</button>
       <button class="btn btn-secondary" onclick="startWithKnowledge(false)">📖 No, explain first</button>
       <button class="btn btn-outline" style="min-width: 44px; padding: 10px;" onclick="closeKnowledgeCheck()" title="Cancel">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONCEPT INTERACTION MODAL -->
+<div class="know-modal" id="conceptModal">
+  <div class="know-card concept-modal-card" style="max-width: 460px; text-align:center;">
+    <div style="font-size:2rem;margin-bottom:12px">🧠</div>
+    <h3 style="font-family:'Outfit',sans-serif;font-size:1.35rem;margin-bottom:6px;">Concept Actions</h3>
+    <p style="font-size:0.9rem;color:var(--muted);margin-bottom:20px;">What would you like to do with the concept <strong id="selectedConceptName" style="color:var(--green)"></strong>?</p>
+    
+    <div style="display:flex; flex-direction:column; gap:10px; width:100%; align-items:stretch;">
+      <button class="btn btn-primary" onclick="actionOnConcept('explain')" style="justify-content:flex-start; text-align:left; font-size:0.9rem; padding:12px 16px;">
+        📖 &nbsp; Explain with AI Tutor
+      </button>
+      <button class="btn btn-secondary" onclick="actionOnConcept('feynman')" style="justify-content:flex-start; text-align:left; font-size:0.9rem; padding:12px 16px;">
+        🎓 &nbsp; Teach the AI (Feynman)
+      </button>
+      <button class="btn btn-secondary" onclick="actionOnConcept('debate')" style="justify-content:flex-start; text-align:left; font-size:0.9rem; padding:12px 16px;">
+        🤺 &nbsp; Debate this Concept
+      </button>
+      <button class="btn btn-secondary" onclick="actionOnConcept('flashcards')" style="justify-content:flex-start; text-align:left; font-size:0.9rem; padding:12px 16px;">
+        🎴 &nbsp; Forge Flashcards
+      </button>
+      <button class="btn btn-secondary" onclick="actionOnConcept('quiz')" style="justify-content:flex-start; text-align:left; font-size:0.9rem; padding:12px 16px;">
+        📝 &nbsp; Generate 5-Question Quiz
+      </button>
+      <button class="btn btn-secondary" onclick="actionOnConcept('scenario')" style="justify-content:flex-start; text-align:left; font-size:0.9rem; padding:12px 16px;">
+        🌍 &nbsp; Start Scenario Simulator
+      </button>
+    </div>
+    
+    <div style="margin-top: 18px; display:flex; justify-content:flex-end;">
+      <button class="btn btn-outline" style="padding: 8px 16px; font-size:0.85rem;" onclick="closeConceptModal()">Close</button>
     </div>
   </div>
 </div>
@@ -218,7 +262,7 @@
 <div class="page" id="dashboardPage">
   <div style="padding-top:12px;margin-bottom:28px">
     <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:6px">Dashboard 📊</div>
-    <div style="font-size:.9rem;color:var(--muted)">Your learning progress at a glance</div>
+    <div style="font-size:.9rem;color:var(--muted)">Welcome back, <span id="dashUserName" style="color:var(--green)">Student</span>! Your progress at a glance.</div>
   </div>
 
   <div class="stats-grid">
@@ -336,6 +380,53 @@
   </div>
 </div>
 
+<!-- ═══════ FLASHCARD PAGE ═══════ -->
+<div class="page" id="flashcardsPage">
+  <div style="padding-top:12px;margin-bottom:28px">
+    <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:6px">Flashcard Forge 🎴</div>
+    <div style="font-size:.9rem;color:var(--muted)">Master concepts through active recall</div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="icon">✨</span> Choose a Topic to Study</div>
+    <div class="btn-row" id="flashcardTopicsList" style="margin-bottom:10px;">
+      <div class="empty-state" style="width:100%"><div class="empty-icon">📄</div>Upload a PDF first to forge flashcards</div>
+    </div>
+    
+    <div id="flashcardArena" style="display:none; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
+      <div class="flashcard-container">
+        <div class="flashcard" id="mainFlashcard" onclick="this.classList.toggle('flipped')">
+          <div class="flashcard-front">
+            <div class="card-label">QUESTION</div>
+            <div class="card-content" id="cardFrontText"></div>
+            <div class="card-hint">Click to reveal answer</div>
+          </div>
+          <div class="flashcard-back">
+            <div class="card-label">ANSWER</div>
+            <div class="card-content" id="cardBackText"></div>
+            <div class="card-hint">Click to see question</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="deck-controls">
+        <button class="btn btn-outline" onclick="navigateFlashcards(-1)" id="prevCardBtn">← Previous</button>
+        <div class="card-counter"><span id="currentCardNum">1</span> / <span id="totalCardsNum">10</span></div>
+        <button class="btn btn-outline" onclick="navigateFlashcards(1)" id="nextCardBtn">Next →</button>
+      </div>
+      
+      <div class="btn-row" style="justify-content:center; margin-top: 24px;">
+        <button class="btn btn-secondary" onclick="startFlashcards(activeFlashcardTopic)">🔁 Reshuffle Deck</button>
+      </div>
+
+      <div class="thinking" id="flashcardLoader" style="display:none; margin-top:20px; justify-content:center;">
+        <div class="dot-anim"><span></span><span></span><span></span></div>
+        <span>Forging your flashcards...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <!-- ═══════ SCENARIO PAGE ═══════ -->
 <div class="page" id="scenarioPage">
   <div style="padding-top:12px;margin-bottom:28px">
@@ -371,36 +462,14 @@
   </div>
 </div>
 
-<!-- ═══════ DASHBOARD PAGE ═══════ -->
-<div class="page" id="dashboardPage">
-  <div style="padding-top:12px;margin-bottom:28px">
-    <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:6px">Your Dashboard 📊</div>
-    <div style="font-size:.9rem;color:var(--muted)">Track your personalized learning path.</div>
-  </div>
-  <div class="card">
-    <div class="card-title"><span class="icon">👤</span> Welcome Back, <span id="dashUserName" style="color:var(--green)">Student</span>!</div>
-    
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top:20px;">
-      <div style="background:var(--surface2); padding:20px; border-radius:12px; text-align:center; border:1px solid var(--border);">
-        <div style="font-size:2rem; margin-bottom:10px;">📉</div>
-        <div style="font-size:1.5rem; font-weight:bold" id="dashQuizzesTaken">0</div>
-        <div style="font-size:0.85rem; color:var(--muted)">Quizzes Completed</div>
-      </div>
-      <div style="background:var(--surface2); padding:20px; border-radius:12px; text-align:center; border:1px solid var(--border);">
-        <div style="font-size:2rem; margin-bottom:10px;">🎯</div>
-        <div style="font-size:1.5rem; font-weight:bold" id="dashAvgScore">0%</div>
-        <div style="font-size:0.85rem; color:var(--muted)">Average Score</div>
-      </div>
-    </div>
-  </div>
-</div>
 
 </main>
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 
-<script src="app.js"></script>
+</div> <!-- End app-container -->
+<script src="assets/js/app.js"></script>
 
 </body>
 </html>

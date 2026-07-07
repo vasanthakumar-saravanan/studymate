@@ -62,3 +62,6 @@ This project is configured as a decoupled monorepo, ideal for free-tier deployme
 - **Backend**: Python, FastAPI
 - **AI Processing**: Groq LLM API (`llama-3.3-70b-versatile`)
 - **Database & Auth**: Supabase PostgreSQL + Auth JS SDK
+
+## 👥 Co-Authors
+- Automated workflow tests and integrations are co-authored with GitHub Actions Bot.

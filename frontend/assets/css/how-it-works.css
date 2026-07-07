@@ -9,15 +9,15 @@
       background-image: radial-gradient(circle at 15% 50%, rgba(59,220,140,0.06), transparent 30%), radial-gradient(circle at 85% 30%, rgba(91,154,245,0.06), transparent 30%);
       color:var(--text); min-height:100vh; overflow-x:hidden;
     }
-    h1 {
-  position: absolute;
-  left: -9999px;
-}
     nav{
       display:flex;align-items:center;justify-content:space-between;
       padding:18px 40px; background:rgba(14,17,23,.85); backdrop-filter:blur(12px);
       border-bottom:1px solid var(--border); position:sticky;top:0;z-index:100;
     }
+    h1 {
+  position: absolute;
+  left: -9999px;
+}
     .logo{
       font-family:'Syne',sans-serif; font-weight:800;font-size:1.3rem;
       color:var(--green); letter-spacing:-0.5px; text-decoration:none;
@@ -37,7 +37,7 @@
         border-color:rgba(59,220,140,.2);
     }
     main{ max-width:860px; margin:0 auto; padding:60px 24px 80px; }
-    h1 { font-family:'Syne',sans-serif; font-size:2.4rem; margin-bottom: 24px; text-align: center; }
+    main h1 { font-family:'Syne',sans-serif; font-size:2.4rem; margin-bottom: 24px; text-align: center; }
     .card {
       background:var(--surface); backdrop-filter: blur(12px); border:1px solid var(--border);
       border-radius:var(--radius); padding:32px; margin-bottom:20px;

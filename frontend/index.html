@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>StudyMate AI - Smart Study Assistant for Students</title>
+<meta name="keywords" content="AI study tool, quiz generator, study assistant, AI learning, student productivity, mind maps AI, StudyMate">
+<meta name="google-site-verification" content="OmD-OMQjL2kTriCbTSgiLanrGQlDjKHpFhlff01YMKE" />
+<meta name="description" content="StudyMate is an AI-powered study planner that helps students organize tasks, track progress, and improve productivity.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="canonical" href="https://studymate-beta-six.vercel.app/">
+<meta property="og:title" content="StudyMate AI - Smart Study Assistant">
+<meta property="og:description" content="Generate quizzes, summaries & mind maps using AI. Study smarter with StudyMate.">
+<meta property="og:image" content="https://studymate-beta-six.vercel.app/preview.png">
+<meta property="og:url" content="https://studymate-beta-six.vercel.app">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="StudyMate AI">
+<meta name="twitter:description" content="AI-powered study assistant for quizzes, summaries & mind maps">
+<meta name="twitter:image" content="https://studymate-beta-six.vercel.app/preview.png">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/index.css">
+<link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <h1>StudyMate – AI Study Planner for Students</h1>
+  
+  <div class="background-canvas">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <nav>
+    <a href="/" class="logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Study<span>Mate</span></a>
+  </nav>
+  
+  <div class="auth-container">
+    <div class="auth-card">
+      <h2 class="auth-title">Welcome Back</h2>
+      <p class="auth-subtitle">Log in to unleash your AI study assistant.</p>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="email" class="form-control" placeholder="example@domain.com" required>
+        </div>
+        <div class="form-group password-group">
+          <label>Password</label>
+          <div class="input-wrapper">
+            <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+            <button type="button" class="password-toggle" id="togglePassword">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Log In</button>
+        <p id="errorMsg" style="color:var(--red); font-size:0.85rem; margin-top:10px; display:none;"></p>
+        <p id="successMsg" style="color:var(--green); font-size:0.85rem; margin-top:10px; display:none;">Login successful! Redirecting...</p>
+      </form>
+      <div class="auth-links">
+        Don't have an account? <a href="/register">Sign Up</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/index.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 from groq import Groq
-from app.config import GROQ_API_KEY
+from app.core.config import GROQ_API_KEY
 
 client = Groq(api_key=GROQ_API_KEY)
 
@@ -226,3 +226,28 @@ Return ONLY valid JSON, no explanation or markdown.
             "total_days": days_left,
             "recommendation": f"You have {days_left} days to prepare. Study 2-3 hours daily for optimal retention."
         }
+def generate_flashcards(topic: str, context: str = "") -> str:
+    """Generate 10–12 active recall flashcards (Q&A pairs) for a topic."""
+    prompt = f"""
+You are an expert at creating active-recall flashcards for students.
+Create exactly 10 high-quality flashcards based on the topic: "{topic}".
+
+Context from course material:
+{context[:4000]}
+
+Requirements:
+1. Each card must have a "front" (Question/Term) and a "back" (Answer/Definition).
+2. The front should be a clear, concise question or a term.
+3. The back should be the specific answer or definition based on the provided context.
+4. Focus on 'Atomic' concepts (one clear fact per card).
+5. Mix question types: definitions, "What happens if...", and comparisons.
+
+Return ONLY a valid JSON array of objects — no explanation, no markdown, no extra text:
+[
+  {{
+    "front": "What is [Concept]?",
+    "back": "It is [Definition from context]."
+  }}
+]
+"""
+    return generate_response(prompt)

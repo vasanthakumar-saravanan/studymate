@@ -6,16 +6,20 @@
 <title>StudyMate | Sign Up</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="register.css">
+<link rel="stylesheet" href="assets/css/register.css">
+<link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
 </head>
 <body>
   <h1>Create Account – StudyMate</h1>
 
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
+  <div class="background-canvas">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
 
   <nav>
-    <a href="/" class="logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Study<span>Mate</span></a>
+    <a href="/" class="logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Study<span>Mate</span></a>
   </nav>
   
   <div class="auth-container">
@@ -31,9 +35,14 @@
           <label>Email Address</label>
           <input type="email" id="email" class="form-control" placeholder="example@domain.com" required>
         </div>
-        <div class="form-group">
+        <div class="form-group password-group">
           <label>Password</label>
-          <input type="password" id="password" class="form-control" placeholder="Create a password" required>
+          <div class="input-wrapper">
+            <input type="password" id="password" class="form-control" placeholder="Create a password" required>
+            <button type="button" class="password-toggle" id="togglePassword">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
         </div>
         <button type="submit" class="btn btn-primary" id="submitBtn">Sign Up</button>
         <p id="errorMsg" style="color:var(--red); font-size:0.85rem; margin-top:10px; display:none;"></p>
@@ -45,6 +54,6 @@
     </div>
   </div>
 
-  <script src="register.js"></script>
+  <script src="assets/js/register.js"></script>
 </body>
 </html>
