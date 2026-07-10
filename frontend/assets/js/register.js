@@ -21,6 +21,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   btn.innerText = "Signing up...";
   errorMsg.style.display = 'none';
   successMsg.style.display = 'none';
+  //Exception handling
 
   try {
     const res = await fetch(`${API_URL}/register`, {

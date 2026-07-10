@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exam Planner | StudyMate AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="planner.css">
+</head>
+<body>
+  <h1>Exam Planner – StudyMate AI</h1>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Study<span>Mate</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab" onclick="window.location.href='app.html'">🏠 Home</button>
+      <button class="nav-tab active" onclick="window.location.href='planner.html'">📅 Planner</button>
+    </div>
+    <div class="top-right-nav" style="display:flex; gap:12px; align-items:center;">
+      <button class="dark-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <button onclick="logoutUser()" id="logoutBtn" class="btn btn-outline" style="padding: 6px 14px; font-size:0.82rem; display:none;">Logout</button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <!-- Create Planner Section -->
+    <div id="plannerCreateSection" class="card">
+      <div class="card-title"><span class="icon">📅</span> Create Exam Planner</div>
+      
+      <div class="form-group">
+        <label for="examName">Exam Name <span style="color: #e74c3c;">*</span></label>
+        <input type="text" id="examName" placeholder="e.g., Final Exam - Mathematics" class="form-input">
+      </div>
+
+      <div class="form-group">
+        <label for="subject">Subject <span style="color: #e74c3c;">*</span></label>
+        <input type="text" id="subject" placeholder="e.g., Mathematics, Physics, History" class="form-input">
+      </div>
+
+      <div class="form-group">
+        <label for="examDate">Exam Date <span style="color: #e74c3c;">*</span></label>
+        <input type="date" id="examDate" class="form-input">
+      </div>
+
+      <div class="form-group">
+        <label for="userEmail">Your Email Address <span style="color: #e74c3c;">*</span></label>
+        <input type="email" id="userEmail" placeholder="your.email@gmail.com" class="form-input">
+        <small style="color: var(--muted);">We'll send you daily reminders & notifications</small>
+      </div>
+
+      <div class="form-group">
+        <label for="pdfFile">Upload Study Material (PDF)</label>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="pdfFile" accept=".pdf" onchange="handleFileSelect(this)">
+          <div class="upload-icon">📄</div>
+          <div class="upload-text"><strong>Click to upload</strong> or drag and drop<br><span style="font-size:.78rem">PDF files only (optional)</span></div>
+        </div>
+        <div id="fileName" style="font-size:.82rem;color:var(--muted);margin-top:8px;text-align:center"></div>
+      </div>
+
+      <div class="btn-row" style="justify-content:center;margin-top:20px">
+        <button class="btn btn-primary" onclick="createPlanner()" id="createPlannerBtn">🚀 Generate Study Plan</button>
+      </div>
+    </div>
+
+    <!-- Schedule Display Section -->
+    <div id="scheduleSection" class="card" style="display:none;">
+      <div class="card-title"><span class="icon">📊</span> Your Study Schedule</div>
+      
+      <div id="scheduleContainer">
+        <!-- Schedule will be populated here -->
+      </div>
+
+      <div class="btn-row" style="justify-content:center;margin-top:20px">
+        <button class="btn btn-secondary" onclick="downloadSchedulePDF()">📥 Download as PDF</button>
+        <button class="btn btn-outline" onclick="resetPlanner()">➕ Create New Planner</button>
+      </div>
+    </div>
+
+    <!-- Progress Tracking Section -->
+    <div id="progressSection" class="card" style="display:none;">
+      <div class="card-title"><span class="icon">✅</span> Study Progress</div>
+      <div id="progressContainer">
+        <!-- Progress will be populated here -->
+      </div>
+    </div>
+
+    <!-- Notifications Section -->
+    <div id="notificationsSection" class="card" style="display:none;">
+      <div class="card-title"><span class="icon">🔔</span> Reminders & Notifications</div>
+      <div id="notificationsContainer">
+        <p style="color: var(--muted);">Enable notifications to get study reminders.</p>
+        <button class="btn btn-primary" onclick="enableNotifications()" style="margin-top:12px;">🔔 Enable Notifications</button>
+      </div>
+    </div>
+
+    <!-- Tips Section -->
+    <div class="card tips-card">
+      <div class="card-title"><span class="icon">💡</span> Study Tips</div>
+      <ul style="margin-top:12px;">
+        <li>🎯 Set specific study goals for each session</li>
+        <li>⏱️ Use the Pomodoro technique: 25 min study + 5 min break</li>
+        <li>📝 Review previous topics weekly</li>
+        <li>🧠 Practice with quizzes to identify weak areas</li>
+        <li>😴 Ensure adequate sleep for better retention</li>
+      </ul>
+    </div>
+  </main>
+
+  <script src="planner.js"></script>
+  <script>
+    // Initialize theme and logout button visibility
+    function initializePage() {
+      const token = localStorage.getItem('sm_auth_token');
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (token && logoutBtn) {
+        logoutBtn.style.display = 'inline-block';
+      }
+      
+      // Load theme preference
+      const theme = localStorage.getItem('sm_theme') || 'dark';
+      if (theme === 'light') {
+        document.documentElement.style.setProperty('--bg', '#ffffff');
+        document.documentElement.style.setProperty('--text', '#000000');
+        document.documentElement.style.setProperty('--card-bg', '#f5f5f5');
+      }
+    }
+
+    function toggleTheme() {
+      const currentBg = getComputedStyle(document.documentElement).getPropertyValue('--bg');
+      if (currentBg.includes('255')) {
+        // Switch to dark
+        document.documentElement.style.setProperty('--bg', '#0a0a0a');
+        document.documentElement.style.setProperty('--text', '#ffffff');
+        document.documentElement.style.setProperty('--card-bg', '#1a1a1a');
+        localStorage.setItem('sm_theme', 'dark');
+      } else {
+        // Switch to light
+        document.documentElement.style.setProperty('--bg', '#ffffff');
+        document.documentElement.style.setProperty('--text', '#000000');
+        document.documentElement.style.setProperty('--card-bg', '#f5f5f5');
+        localStorage.setItem('sm_theme', 'light');
+      }
+    }
+
+    function logoutUser() {
+      localStorage.removeItem('sm_auth_token');
+      localStorage.removeItem('sm_user_name');
+      window.location.href = 'index.html';
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', initializePage);
+  </script>
+</body>
+</html>

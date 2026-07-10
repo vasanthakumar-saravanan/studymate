@@ -1,0 +1,373 @@
+/* Planner Page Styles */
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--border, #333);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--muted, #999);
+}
+
+.upload-zone {
+  position: relative;
+  border: 2px dashed var(--border, #333);
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  background: var(--card-bg);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-zone:hover {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.05);
+}
+
+.upload-zone input {
+  display: none;
+}
+
+.upload-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.upload-text {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.upload-text strong {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+#fileName {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Schedule Display */
+.schedule-week {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: var(--card-bg);
+  border-left: 4px solid #38bdf8;
+  border-radius: 8px;
+  animation: fadeIn 0.4s ease;
+}
+
+.schedule-week h3 {
+  margin: 0 0 12px 0;
+  color: #38bdf8;
+  font-size: 1.1rem;
+}
+
+.schedule-dates {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.schedule-topics {
+  margin-top: 12px;
+}
+
+.topic-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: rgba(56, 189, 248, 0.05);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.topic-item:hover {
+  background: rgba(56, 189, 248, 0.1);
+  transform: translateX(4px);
+}
+
+.topic-item.completed {
+  opacity: 0.6;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.topic-item.completed .topic-name {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.topic-checkbox {
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  cursor: pointer;
+  accent-color: #38bdf8;
+}
+
+.topic-name {
+  flex: 1;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.topic-hours {
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: var(--card-bg);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.btn-finish-day {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.btn-finish-day:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+}
+
+.btn-finish-day:active {
+  transform: translateY(0);
+}
+
+.btn-finish-day.completed {
+  background: #16a34a;
+  opacity: 0.6;
+  cursor: default;
+}
+
+.day-task-container {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--card-bg);
+  border-radius: 6px;
+  border-left: 3px solid #38bdf8;
+}
+
+/* Progress Section */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--border, #333);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+
+/* Tips Card */
+.tips-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.tips-card li {
+  padding: 10px 0;
+  color: var(--text);
+  border-bottom: 1px solid var(--border, #333);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.tips-card li:last-child {
+  border-bottom: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-input,
+  .upload-zone {
+    font-size: 16px;
+  }
+
+  .upload-zone {
+    padding: 30px 15px;
+  }
+
+  .upload-icon {
+    font-size: 2rem;
+  }
+
+  .schedule-week {
+    padding: 12px;
+  }
+
+  .schedule-week h3 {
+    font-size: 1rem;
+  }
+}
+
+/* Button Row Styling */
+.btn-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--border, #666);
+  color: var(--text);
+}
+
+.btn-outline:hover {
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+/* Loading State */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(56, 189, 248, 0.3);
+  border-top-color: #38bdf8;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Message Alerts */
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  animation: slideDown 0.3s ease;
+}
+
+.alert-success {
+  background: rgba(34, 197, 94, 0.1);
+  border-left: 4px solid #22c55e;
+  color: #22c55e;
+}
+
+.alert-error {
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 4px solid #ef4444;
+  color: #ef4444;
+}
+
+.alert-info {
+  background: rgba(56, 189, 248, 0.1);
+  border-left: 4px solid #38bdf8;
+  color: #38bdf8;
+}

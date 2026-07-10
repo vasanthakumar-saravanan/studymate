@@ -571,8 +571,10 @@ function speakText(text) {
     return;
   }
   window.speechSynthesis.cancel();
-  const stripped = text.replace(/<[^>]+>/g, '').replace(/[\*\_\[\]\#\`]/g, '');
-  const utterance = new SpeechSynthesisUtterance(stripped);
+  const temp = document.createElement("div");
+  temp.textContent = text;
+  const safeText = temp.innerText.replace(/[\*\_\[\]\#\`]/g, "");
+  const utterance = new SpeechSynthesisUtterance(safeText);
   utterance.rate = 0.95;
   window.speechSynthesis.speak(utterance);
 }

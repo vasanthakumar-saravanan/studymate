@@ -14,8 +14,8 @@ def generate_response(prompt: str, model: str = "llama-3.3-70b-versatile") -> st
         )
         content = res.choices[0].message.content
         return content if content is not None else "Error calling AI: Received empty response from model."
-    except Exception as e:
-        return f"Error calling AI: {str(e)}"
+    except Exception:
+        return "Error calling AI service."
 
 
 def classify_topics(text: str) -> str:
@@ -177,6 +177,55 @@ Evaluate their action based on the context:
     return generate_response(prompt)
 
 
+def generate_study_schedule(subject: str, topics: str, exam_date: str) -> dict:
+    """Generate a comprehensive study schedule for exam preparation using LLM."""
+    prompt = f"""
+You are an expert study planner. Create a detailed week-by-week study schedule for a student preparing for an exam.
+
+Subject: {subject}
+Topics to cover: {topics}
+Exam Date: {exam_date}
+
+Generate a JSON schedule with the following structure:
+- Divide the time between today and exam date into study weeks
+- For each week, list 3-4 key topics to focus on
+- Suggest study duration per day (e.g., 2-3 hours)
+- Include revision days near the exam
+- Format: {{"weeks": [{{"week_number": 1, "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", "topics": ["topic1", "topic2"], "daily_hours": 2, "activities": ["reading", "quiz", "practice"]}}, ...]}}
+
+Return ONLY valid JSON, no explanation or markdown.
+"""
+    response = generate_response(prompt)
+    
+    # Try to parse JSON response
+    import json
+    import re
+    try:
+        # Clean response
+        cleaned = re.sub(r"```(?:json)?", "", response).replace("```", "").strip()
+        schedule = json.loads(cleaned)
+        return schedule
+    except:
+        # Fallback: return simple schedule structure
+        from datetime import datetime, timedelta
+        today = datetime.now()
+        exam = datetime.strptime(exam_date, "%Y-%m-%d")
+        days_left = (exam - today).days
+        
+        return {
+            "weeks": [
+                {
+                    "week_number": 1,
+                    "start_date": today.strftime("%Y-%m-%d"),
+                    "end_date": (today + timedelta(days=7)).strftime("%Y-%m-%d"),
+                    "topics": topics.split(",")[:3],
+                    "daily_hours": 2,
+                    "activities": ["reading", "notes", "summary"]
+                }
+            ],
+            "total_days": days_left,
+            "recommendation": f"You have {days_left} days to prepare. Study 2-3 hours daily for optimal retention."
+        }
 def generate_flashcards(topic: str, context: str = "") -> str:
     """Generate 10–12 active recall flashcards (Q&A pairs) for a topic."""
     prompt = f"""
@@ -202,4 +251,3 @@ Return ONLY a valid JSON array of objects — no explanation, no markdown, no ex
 ]
 """
     return generate_response(prompt)
-
